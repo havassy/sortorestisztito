@@ -171,6 +171,12 @@
       font-weight: 600;
     }
 
+    .char-count {
+      margin: 10px 0 0;
+      font-size: 0.94rem;
+      color: var(--muted);
+    }
+
     .notes {
       padding: 0 24px 24px;
       color: var(--muted);
@@ -215,6 +221,7 @@
         <section class="panel">
           <h2>Kimenet</h2>
           <textarea id="output" placeholder="Itt jelenik meg a tisztított szöveg..."></textarea>
+          <p id="charCount" class="char-count">Karakterek száma a tisztított szövegben szóközökkel: 0</p>
         </section>
       </div>
 
@@ -236,10 +243,15 @@
     const preserveParagraphs = document.getElementById('preserveParagraphs');
     const joinHyphenated = document.getElementById('joinHyphenated');
     const trimSpaces = document.getElementById('trimSpaces');
+    const charCountEl = document.getElementById('charCount');
 
     function setStatus(message, type = '') {
       statusEl.textContent = message;
       statusEl.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function updateCharCount() {
+      charCountEl.textContent = 'Karakterek száma a tisztított szövegben szóközökkel: ' + output.value.length;
     }
 
     function cleanText() {
@@ -247,6 +259,7 @@
 
       if (!text.trim()) {
         output.value = '';
+        updateCharCount();
         setStatus('Nincs feldolgozható szöveg.', 'err');
         return;
       }
@@ -276,6 +289,7 @@
       text = text.replace(/ ?\n\n ?/g, '\n\n').trim();
 
       output.value = text;
+      updateCharCount();
       setStatus('A szöveg tisztítása elkészült.', 'ok');
     }
 
@@ -300,6 +314,7 @@
     function clearFields() {
       input.value = '';
       output.value = '';
+      updateCharCount();
       setStatus('A mezők kiürítve.');
       input.focus();
     }
