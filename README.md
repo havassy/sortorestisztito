@@ -18,4 +18,5 @@ Egyszerű, helyben futó HTML-eszköz PDF-ből vagy weboldalról másolt szöveg
 
 ## Korlátok
 
+A program csak a dupla sortöréssel jelölt bekezdéseket őrzi meg.
 Elsősorban szóközökkel tagolt, prózaszerű szövegekhez ajánlott. Versekhez, táblázatokhoz, kódhoz és nem szóközalapú írásrendszerekhez kevésbé alkalmas.
