@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sortörés-tisztító</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --card-2: #f8fafc;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --accent: #0f766e;
+      --accent-hover: #115e59;
+      --accent-soft: #ccfbf1;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 24px 24px 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      max-width: 75ch;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding: 18px 24px 24px;
+    }
+
+    @media (min-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 340px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font: 15px/1.55 Consolas, "Cascadia Code", "Courier New", monospace;
+      color: var(--text);
+      background: #fff;
+    }
+
+    textarea:focus,
+    button:focus,
+    input:focus {
+      outline: 3px solid rgba(15, 118, 110, 0.18);
+      border-color: var(--accent);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0 24px 24px;
+      align-items: center;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      width: 100%;
+      padding: 4px 0 6px;
+      color: var(--text);
+    }
+
+    .options label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.96rem;
+      cursor: pointer;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color .18s ease, transform .12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .primary:hover { background: var(--accent-hover); }
+
+    .secondary {
+      background: #e5e7eb;
+      color: var(--text);
+    }
+
+    .secondary:hover { background: #dbe1e7; }
+
+    .status {
+      margin-left: auto;
+      font-size: 0.95rem;
+      color: var(--muted);
+      min-height: 1.5em;
+    }
+
+    .status.ok {
+      color: #0f766e;
+      font-weight: 600;
+    }
+
+    .status.err {
+      color: #b91c1c;
+      font-weight: 600;
+    }
+
+    .notes {
+      padding: 0 24px 24px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .notes ul {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+
+    .notes li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="hero">
+        <h1>Sortörés-tisztító</h1>
+        <p class="lead">PDF-ből vagy weboldalról másolt szövegek gyors tisztítására. A felesleges sortöréseket eltávolítja, miközben a bekezdéseket igény szerint megőrzi.</p>
+      </div>
+
+      <div class="controls">
+        <div class="options">
+          <label><input type="checkbox" id="preserveParagraphs" checked> Bekezdések megtartása</label>
+          <label><input type="checkbox" id="joinHyphenated" checked> Elválasztott szavak összefűzése</label>
+          <label><input type="checkbox" id="trimSpaces" checked> Többszörös szóközök egyszerűsítése</label>
+        </div>
+
+        <button class="primary" id="cleanBtn">Tisztítás</button>
+        <button class="secondary" id="copyBtn">Kimenet másolása</button>
+        <button class="secondary" id="clearBtn">Mezők ürítése</button>
+        <div class="status" id="status" aria-live="polite"></div>
+      </div>
+
+      <div class="grid">
+        <section class="panel">
+          <h2>Bemenet</h2>
+          <textarea id="input" placeholder="Ide illessze be a tisztítandó szöveget..."></textarea>
+        </section>
+
+        <section class="panel">
+          <h2>Kimenet</h2>
+          <textarea id="output" placeholder="Itt jelenik meg a tisztított szöveg..."></textarea>
+        </section>
+      </div>
+
+      <div class="notes">
+        <strong>Működés:</strong>
+        <ul>
+          <li>Az egyes sorvégi sortöréseket szóközzé alakítja.</li>
+          <li>A dupla sortöréseket - beállítástól függően - bekezdésként megőrzi.</li>
+          <li>A -↵ típusú elválasztásokat egybeírja.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+    const preserveParagraphs = document.getElementById('preserveParagraphs');
+    const joinHyphenated = document.getElementById('joinHyphenated');
+    const trimSpaces = document.getElementById('trimSpaces');
+
+    function setStatus(message, type = '') {
+      statusEl.textContent = message;
+      statusEl.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function cleanText() {
+      let text = input.value;
+
+      if (!text.trim()) {
+        output.value = '';
+        setStatus('Nincs feldolgozható szöveg.', 'err');
+        return;
+      }
+
+      text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+      if (joinHyphenated.checked) {
+        text = text.replace(/-\n(?=\p{L})/gu, '');
+      }
+
+      const marker = '__PARA_BREAK_9f3c1a__';
+
+      if (preserveParagraphs.checked) {
+        text = text.replace(/\n\s*\n+/g, marker);
+      }
+
+      text = text.replace(/\n/g, ' ');
+
+      if (trimSpaces.checked) {
+        text = text.replace(/[ \t]+/g, ' ');
+      }
+
+      if (preserveParagraphs.checked) {
+        text = text.replace(new RegExp(marker, 'g'), '\n\n');
+      }
+
+      text = text.replace(/ ?\n\n ?/g, '\n\n').trim();
+
+      output.value = text;
+      setStatus('A szöveg tisztítása elkészült.', 'ok');
+    }
+
+    async function copyOutput() {
+      const text = output.value;
+
+      if (!text.trim()) {
+        setStatus('Nincs másolható kimenet.', 'err');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus('A kimenet a vágólapra került.', 'ok');
+      } catch (err) {
+        output.focus();
+        output.select();
+        setStatus('A böngésző nem engedte az automatikus másolást. A szöveg kijelölve maradt.', 'err');
+      }
+    }
+
+    function clearFields() {
+      input.value = '';
+      output.value = '';
+      setStatus('A mezők kiürítve.');
+      input.focus();
+    }
+
+    document.getElementById('cleanBtn').addEventListener('click', cleanText);
+    document.getElementById('copyBtn').addEventListener('click', copyOutput);
+    document.getElementById('clearBtn').addEventListener('click', clearFields);
+  </script>
+</body>
+</html>
